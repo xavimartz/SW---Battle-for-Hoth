@@ -15,8 +15,10 @@ body{
 canvas{
     border: 2px solid rgb(248, 234, 37);
     margin: 2rem;
-    width: 928px;
-    height: 492px;
+    width: 1300px;
+    height: 500px;
+    background: url(./img/images.jpg);
+    background-size: cover;
 }
 
 #gameboard img{
