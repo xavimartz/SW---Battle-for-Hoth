@@ -9,6 +9,7 @@ let space = false
 
 // Is a bullet already on the canvas?
 let shooting = false
+let shooting2 = false
 
 class Gameboard {
   constructor() {
@@ -66,24 +67,43 @@ class Player {
 }
 
 const player1 = new Player('./assets/img/at-at_P1.png', 180, 130, 0, 450, true)
-const player2 = new Player('./assets/img/at-at_P2.png', 180, 130, 820, 450, false)
+const player2 = new Player('./assets/img/at-at_P2.png', 180, 130, 820, 450, true)
 
 class Gun {
-  constructor(x, y, width, height, speed) {
+  constructor(x, y, width, height, speed, img) {
     this.x = x
     this.y = y
     this.w = width
     this.h = height
     this.s = speed
-    this.imgpow = new Image()
-    this.imgpow.src = './assets/img/laser.png'
+    this.img = new Image()
+    this.img.src = img
+  }
+  shoot() {
+    if (player1.status == true) {
+      if (!shooting) {
+        shooting = true
+
+        bullet.x = player1.x + player1.width
+        bullet.y = player1.y + player1.height / 2
+      }
+    }
+    if (player2.status == true) {
+      if (!shooting2) {
+        console.log('coñoooo micky')
+        shooting2 = true
+        bullet2.x = player2.x
+        bullet2.y = player2.y + player2.height / 2
+      }
+    }
   }
   draw() {
-    ctx.drawImage(this.imgpow, this.x, this.y, this.w, this.h)
+    ctx.drawImage(this.img, this.x, this.y, this.w, this.h)
   }
 }
 
-const bullet = new Gun(0, 0, 80, 10, 0.15)
+const bullet = new Gun(0, 0, 80, 10, 0.15, './assets/img/laser.png')
+const bullet2 = new Gun(0, 0, 80, 10, 0.15, './assets/img/laser2.png')
 
 const startButton = document.querySelector('#start')
 startButton.onclick = () => {
@@ -113,8 +133,6 @@ function isWithin(a, b, c) {
 
 // Return true if two squares a and b are colliding, false otherwise
 function isColliding(a, b) {
-  console.log('bullet', a)
-  console.log('enemy', b)
   let result = false
   if (isWithin(a.x, b.x, b.x + b.width) || isWithin(a.x + a.w, b.x, b.x + b.width)) {
     if (isWithin(a.y, b.y, b.y + b.height) || isWithin(a.y + a.h, b.y, b.y + b.height)) {
@@ -124,25 +142,24 @@ function isColliding(a, b) {
   return result
 }
 
-function shoot() {
-  if (player1.status == true) {
-    if (!shooting) {
-      shooting = true
+// function shoot() {
+//   if (player1.status == true) {
+//     if (!shooting) {
+//       shooting = true
 
-      bullet.x = player1.x + player1.width
-      bullet.y = player1.y + player1.height / 2
-    }
-  }
-  if (player2.status == true) {
-    if (!shooting) {
-      console.log('coñoooo micky')
-      shooting = true
-      console.log(player2.x)
-      bullet.x = player2.x
-      bullet.y = player2.y + player2.height / 2
-    }
-  }
-}
+//       bullet.x = player1.x + player1.width
+//       bullet.y = player1.y + player1.height / 2
+//     }
+//   }
+//   if (player2.status == true) {
+//     if (!shooting2) {
+//       console.log('coñoooo micky')
+//       shooting2 = true
+//       bullet2.x = player2.x
+//       bullet2.y = player2.y + player2.height / 2
+//     }
+//   }
+// }
 
 function draw() {
   let gameOver = false
@@ -155,8 +172,6 @@ function draw() {
       // Collide the bullet with enemies
 
       if (isColliding(bullet, player2)) {
-        player1.status = false
-        player2.status = true
         shooting = false
       }
       // Collide with the wall
@@ -167,23 +182,19 @@ function draw() {
     }
   }
   if (player2.status == true) {
-    if (shooting) {
+    if (shooting2) {
       // Move the bullet
-      bullet.x -= bullet.s
+      bullet2.x -= bullet2.s
       // Collide the bullet with enemies
 
-      if (isColliding(bullet, player1)) {
-        console.log('la bala choca con P2')
-        player1.status = true
-        player2.status = false
-        shooting = false
+      if (isColliding(bullet2, player1)) {
+        shooting2 = false
       }
       // Collide with the wall
-      if (bullet.x < 0) {
-        console.log('la bala choca con muro')
-        shooting = false
+      if (bullet2.x <= 0) {
+        shooting2 = false
       }
-      bullet.draw()
+      bullet2.draw()
     }
   }
   if (gameOver) {
@@ -194,44 +205,39 @@ function draw() {
 }
 
 document.onkeydown = e => {
-  if (player1.status == true) {
-    switch (e.keyCode) {
-      case 65:
-        if (player1.x <= 0) player1.x = 0
-        else player1.speedX -= 1
-        break
-      case 68:
-        if (player1.x >= (4 * canvas.width) / 9 - player1.width) player1.x = (4 * canvas.width) / 9 - player1.width
-        else player1.speedX += 1
-        break
-      case 87:
-        player1.jump()
-        break
-      case 83:
-        shoot()
-        break
-      default:
-        break
-    }
-  }
-  if (player2.status == true) {
-    switch (e.keyCode) {
-      case 74:
-        if (player2.x <= (5 * canvas.width) / 9) player2.x = (5 * canvas.width) / 9
-        else player2.speedX -= 1
-        break
-      case 76:
-        if (player2.x + player2.width >= canvas.width) player2.x = canvas.width - player2.width
-        else player2.speedX += 1
-        break
-      case 73:
-        player2.jump()
-      case 75:
-        shoot()
-        break
-      default:
-        break
-    }
+  switch (e.keyCode) {
+    case 65:
+      if (player1.x <= 0) player1.x = 0
+      else player1.speedX -= 1
+      break
+    case 68:
+      if (player1.x >= (4 * canvas.width) / 9 - player1.width) player1.x = (4 * canvas.width) / 9 - player1.width
+      else player1.speedX += 1
+      break
+    case 87:
+      player1.jump()
+      break
+    case 83:
+      bullet.shoot()
+      console.log('shooting 1')
+      break
+    case 74:
+      if (player2.x <= (5 * canvas.width) / 9) player2.x = (5 * canvas.width) / 9
+      else player2.speedX -= 1
+      break
+    case 76:
+      if (player2.x + player2.width >= canvas.width) player2.x = canvas.width - player2.width
+      else player2.speedX += 1
+      break
+    case 73:
+      player2.jump()
+      break
+    case 75:
+      bullet2.shoot()
+      console.log('shooting 2')
+      break
+    default:
+      break
   }
 }
 
