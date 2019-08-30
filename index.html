@@ -23,8 +23,9 @@
         </div>
         <div class="canvas">
             <span id="p1_life"></span>
-            <canvas width="1000" height="768"></canvas>
             <span id="p2_life"></span>
+            <canvas width="1000" height="768"></canvas>
+            <span id="winner"></span>            
         </div>
         <div class="player2">
             <h1>Player2 controlls</h1><img src="./assets/img/keyboard-P2.png" alt="keyboard-P2">
@@ -37,11 +38,12 @@
         </div>
     </div>
     <button id="start">Start Game</button>
+
+    <!-- AUDIO -->
     <audio src="./assets/sounds/intro.mp3" id="intro"></audio>
     <audio src="./assets/sounds/battle.mp3" id="game"></audio>
     <audio src="./assets/sounds/Laser.mp3" id="shoot"></audio>
     <audio src="./assets/sounds/P2_wins.mp3" id="endgame"></audio>
-
 
     <script src="main.js"></script>
 </body>

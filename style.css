@@ -34,7 +34,7 @@ body{
 .player1 ul, .player2 ul{
     width: 100%;
     list-style: none;
-    font-size: 0.9rem;
+    font-size: 1rem;
     padding: 0;
 }
 
@@ -53,6 +53,14 @@ body{
     position: absolute;
     top: 4rem;
     left: 48rem;
+}
+
+#winner{
+    color: yellow;
+    position: absolute;
+    left: 23rem;
+    top: 16rem;
+    font-size: 3rem;
 }
 
 canvas{

@@ -4,6 +4,14 @@ const ctx = canvas.getContext('2d')
 const lifeP1 = document.querySelector('#p1_life')
 const lifeP2 = document.querySelector('#p2_life')
 
+const winner = document.querySelector('#winner')
+
+//audio
+const soundGame = document.querySelector('#game')
+const soundIntro = document.querySelector('#intro')
+const soundShoot = document.querySelector('#shoot')
+const soundEndgame = document.querySelector('#endgame')
+
 let frames = 0
 let interval
 
@@ -140,19 +148,27 @@ function printLife(){
     lifeP2.innerHTML = `Player 2 life ${player2.life}`
 }
 
+function printWinner() {
+    if(player1.life > 0){winner.innerHTML = 'Player 1 wins'}
+    if(player2.life > 0){winner.innerHTML = 'Player 2 wins'}
+}
+
 function endgame() {
     if (player1.dead == true || player2.dead == true) {
+        soundEndgame.play()
+        printWinner()
         clearInterval(interval)
         setTimeout(() => {
             location.reload()
-        }, 3000)
-
+        }, 20000)
     }
 }
+
 
 const startButton = document.querySelector('#start')
 startButton.onclick = () => {
     console.log('Mi juego esta VIVOOO')
+    soundIntro.play()
     startGame()
 }
 
@@ -189,6 +205,7 @@ document.onkeydown = e => {
             player1.jump()
             break
         case 83:
+            soundShoot.play()
             generateGun1()
             break
         case 74:
@@ -203,6 +220,7 @@ document.onkeydown = e => {
             player2.jump()
             break
         case 75:
+            soundShoot.play()
             generateGun2()
             break
         default:
