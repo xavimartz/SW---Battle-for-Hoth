@@ -1,5 +1,6 @@
 *{
     margin: 0;
+    font-family: 'Press Start 2P', cursive;
 }
 
 body{
@@ -12,9 +13,51 @@ body{
     height: 100%
 }
 
+.container{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.player1, .player2{
+    display: flex;
+    flex-direction: column;
+    color: yellow;
+    font-size: 8px;
+    margin-top: 2rem;
+    justify-content: space-evenly;
+}
+.player1 img, .player2 img{
+    width: 100%
+}
+
+.player1 ul, .player2 ul{
+    width: 100%;
+    list-style: none;
+    font-size: 0.9rem;
+    padding: 0;
+}
+
+.canvas{
+    display: flex;
+    flex-direction: row;
+}
+
+#p1_life{
+    position: absolute;
+    top: 4rem;
+    left: 18rem;
+}
+
+#p2_life{
+    position: absolute;
+    top: 4rem;
+    left: 48rem;
+}
+
 canvas{
     border: 2px solid rgb(248, 234, 37);
-    margin: 2rem;
+    margin: 2rem 0;
     width: 1000px;
     height: 500px;
     background: url(./assets/img/images.jpg);
@@ -28,7 +71,6 @@ canvas{
 
 
 button{
-    font-family: 'Press Start 2P', cursive;
     font-size: 1rem;
     border: 2px solid rgb(248, 234, 37);
     background: none;

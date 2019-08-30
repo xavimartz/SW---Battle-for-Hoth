@@ -8,6 +8,8 @@ let interval
 let space = false
 
 // Is a bullet already on the canvas?
+let shooting = false
+let shooting2 = false
 
 class Gameboard {
   constructor() {
@@ -65,7 +67,7 @@ class Player {
 }
 
 const player1 = new Player('./assets/img/at-at_P1.png', 180, 130, 0, 450, true)
-const player2 = new Player('./assets/img/at-at_P2.png', 180, 130, 820, 450, false)
+const player2 = new Player('./assets/img/at-at_P2.png', 180, 130, 820, 450, true)
 
 class Gun {
   constructor(x, y, width, height, speed, img) {
@@ -77,39 +79,31 @@ class Gun {
     this.img = new Image()
     this.img.src = img
   }
+  shoot() {
+    if (player1.status == true) {
+      if (!shooting) {
+        shooting = true
+
+        bullet.x = player1.x + player1.width
+        bullet.y = player1.y + player1.height / 2
+      }
+    }
+    if (player2.status == true) {
+      if (!shooting2) {
+        console.log('coñoooo micky')
+        shooting2 = true
+        bullet2.x = player2.x
+        bullet2.y = player2.y + player2.height / 2
+      }
+    }
+  }
   draw() {
     ctx.drawImage(this.img, this.x, this.y, this.w, this.h)
   }
 }
 
-let shooting = []
-let shooting2 = []
-
-function generateGun1() {
-  shooting.push(
-    new Gun(player1.x + player1.width, player1.y + player1.height / 2, 80, 10, 0.15, './assets/img/laser.png')
-  )
-}
-
-function generateGun2() {
-  shooting2.push(new Gun(player2.x, player2.y + player2.height / 2, 80, 10, 0.15, './assets/img/laser2.png'))
-}
-
-// const bullet2 = new Gun(0, 0, 80, 10, 0.15, './assets/img/laser2.png')
-
-function drawGun1() {
-  shooting.forEach(laser => {
-      laser.x ++
-    laser.draw()
-  })
-}
-
-function drawGun2() {
-  shooting2.forEach(laser => {
-      laser.x --
-    laser.draw()
-  })
-}
+const bullet = new Gun(0, 0, 80, 10, 0.15, './assets/img/laser.png')
+const bullet2 = new Gun(0, 0, 80, 10, 0.15, './assets/img/laser2.png')
 
 const startButton = document.querySelector('#start')
 startButton.onclick = () => {
@@ -129,24 +123,7 @@ function updateCanvas() {
   board.draw()
   player1.draw()
   player2.draw()
-  drawGun1()
-  drawGun2()
-}
-
-// Check if number a is in the range b to c (exclusive)
-function isWithin(a, b, c) {
-  return a > b && a < c
-}
-
-// Return true if two squares a and b are colliding, false otherwise
-function isColliding(a, b) {
-  let result = false
-  if (isWithin(a.x, b.x, b.x + b.width) || isWithin(a.x + a.w, b.x, b.x + b.width)) {
-    if (isWithin(a.y, b.y, b.y + b.height) || isWithin(a.y + a.h, b.y, b.y + b.height)) {
-      result = true
-    }
-  }
-  return result
+  draw()
 }
 
 // function shoot() {
@@ -168,6 +145,66 @@ function isColliding(a, b) {
 //   }
 // }
 
+// Check if number a is in the range b to c (exclusive)
+function isWithin(a, b, c) {
+  return a > b && a < c
+}
+
+// Return true if two squares a and b are colliding, false otherwise
+function isColliding(a, b) {
+  let result = false
+  if (isWithin(a.x, b.x, b.x + b.width) || isWithin(a.x + a.w, b.x, b.x + b.width)) {
+    if (isWithin(a.y, b.y, b.y + b.height) || isWithin(a.y + a.h, b.y, b.y + b.height)) {
+      result = true
+    }
+  }
+  return result
+}
+
+
+function draw() {
+  let gameOver = false
+
+  // Move and draw the bullet
+  if (player1.status == true) {
+    if (shooting) {
+      // Move the bullet
+      bullet.x += bullet.s
+      // Collide the bullet with enemies
+
+      if (isColliding(bullet, player2)) {
+        shooting = false
+      }
+      // Collide with the wall
+      if (bullet.x > canvas.width) {
+        shooting = false
+      }
+      bullet.draw()
+    }
+  }
+  if (player2.status == true) {
+    if (shooting2) {
+      // Move the bullet
+      bullet2.x -= bullet2.s
+      // Collide the bullet with enemies
+
+      if (isColliding(bullet2, player1)) {
+        shooting2 = false
+      }
+      // Collide with the wall
+      if (bullet2.x <= 0) {
+        shooting2 = false
+      }
+      bullet2.draw()
+    }
+  }
+  if (gameOver) {
+    endGame()
+  } else {
+    window.requestAnimationFrame(draw)
+  }
+}
+
 document.onkeydown = e => {
   switch (e.keyCode) {
     case 65:
@@ -182,7 +219,7 @@ document.onkeydown = e => {
       player1.jump()
       break
     case 83:
-      generateGun1()
+      bullet.shoot()
       console.log('shooting 1')
       break
     case 74:
@@ -197,8 +234,8 @@ document.onkeydown = e => {
       player2.jump()
       break
     case 75:
-      generateGun2()
-      console.log('shooting 2')
+      bullet2.shoot()
+      console.log('shooting 1')
       break
     default:
       break
@@ -219,39 +256,4 @@ document.onkeyup = e => {
 document.onkeyup = e => {
   player1.speedX = 0
   player2.speedX = 0
-}
-function draw() {
-  if (player1.status == true) {
-      // Move the bullet
-      // Collide the bullet with enemies
-
-      if (isColliding(bullet, player2)) {
-        shooting.pop()
-      }
-      // Collide with the wall
-      if (bullet.x > canvas.width) {
-        shooting.pop()
-      }
-      draw()
-    
-  }
-  if (player2.status == false) {
-      // Move the bullet
-      // Collide the bullet with enemies
-
-      if (isColliding(bullet, player1)) {
-        shooting.pop()
-      }
-      // Collide with the wall
-      if (bullet.x <= 0) {
-        shooting.pop()
-      }
-      draw()
-    
-  }
-  if (gameOver) {
-    endGame()
-  } else {
-    window.requestAnimationFrame(draw)
-  }
 }

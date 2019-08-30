@@ -1,11 +1,11 @@
 const canvas = document.querySelector('canvas')
 const ctx = canvas.getContext('2d')
 
+const lifeP1 = document.querySelector('#p1_life')
+const lifeP2 = document.querySelector('#p2_life')
+
 let frames = 0
 let interval
-
-//flag to track the shooting key
-let space = false
 
 // Is a bullet already on the canvas?
 
@@ -30,7 +30,7 @@ class Gameboard {
 const board = new Gameboard()
 
 class Player {
-    constructor(img, width, height, x, y, status, life) {
+    constructor(img, width, height, x, y, life) {
         this.img = new Image()
         this.img.src = img
         this.width = width
@@ -39,7 +39,6 @@ class Player {
         this.y = y
         this.speedX = 0
         this.speedy = 0
-        this.status = status
         this.life = life
         this.dead = false
     }
@@ -54,26 +53,26 @@ class Player {
     newPos() {
         this.x += this.speedX
     }
-
-    updateStatus(status) {
-        this.status = status
-    }
-
     jump() {
         this.y -= 40
     }
+    isTouching(bullet) {
+        return this.x < bullet.x + bullet.w &&
+            this.x + this.width > bullet.x &&
+            this.y < bullet.y + bullet.h &&
+            this.y + this.height > bullet.y;
+    }
 }
 
-const player1 = new Player('./assets/img/at-at_P1.png', 180, 130, 0, 450, true)
-const player2 = new Player('./assets/img/at-at_P2.png', 180, 130, 820, 450, false)
+const player1 = new Player('./assets/img/millenium_falcon.png', 180, 130, 0, 450, 100)
+const player2 = new Player('./assets/img/starfighter_vader.png', 180, 130, 820, 450, 100)
 
 class Gun {
-    constructor(x, y, width, height, speed, img) {
+    constructor(x, y, width, height, img) {
         this.x = x
         this.y = y
         this.w = width
         this.h = height
-        this.s = speed
         this.img = new Image()
         this.img.src = img
     }
@@ -86,16 +85,19 @@ let shooting = []
 let shooting2 = []
 
 function generateGun1() {
-    shooting.push(
-        new Gun(player1.x + player1.width, player1.y + player1.height / 2, 80, 10, 0.15, './assets/img/laser.png')
-    )
+   // if (shooting.length <= 3) {
+        shooting.push(
+            new Gun(player1.x + player1.width, player1.y + player1.height / 2, 80, 10, './assets/img/laser.png')
+        )
+    //}
 }
 
 function generateGun2() {
-    shooting2.push(new Gun(player2.x, player2.y + player2.height / 2, 80, 10, 0.15, './assets/img/laser2.png'))
+    //if (shooting.length <= 3) {
+        shooting2.push(new Gun(player2.x, player2.y + player2.height / 2, 80, 10, './assets/img/laser2.png'))
+    //}
 }
 
-// const bullet2 = new Gun(0, 0, 80, 10, 0.15, './assets/img/laser2.png')
 
 function drawGun1() {
     shooting.forEach(laser1 => {
@@ -111,33 +113,40 @@ function drawGun2() {
     })
 }
 
-// Check if number a is in the range b to c (exclusive)
-function isWithin(a, b, c) {
-    console.log('coñoooo micky entraaaa')
-    return a > b && a < c
-}
-
-// Return true if two squares a and b are colliding, false otherwise
-function inArea(a, b) {
-    let result = false
-    if (isWithin(a.x, b.x, b.x + b.width) || isWithin(a.x + a.w, b.x, b.x + b.width)) {
-        console.log('al lado')
-        if (isWithin(a.y, b.y, b.y + b.height) || isWithin(a.y + a.h, b.y, b.y + b.height)) {
-            console.log('por arriba')
-            result = true
-        }
-    }
-    return result
-}
-
 function inCollision() {
-    if (inArea(laser1.x, player2)) {
-        console.log('coñoooo micky')
-        shooting.pop()
-    }
-    // Collide with the wall
-    if (laser1.x > canvas.width) {
-        shooting.pop()
+    shooting.forEach(laser => {
+        if (player2.isTouching(laser)) {
+            shooting.pop()
+            player2.life -= 1
+            console.log(player2.life)
+            if (player2.life == 0) {
+                player2.dead = true
+            }
+        }
+    })
+    shooting2.forEach(laser => {
+        if (player1.isTouching(laser)) {
+            shooting2.pop()
+            player1.life -= 1
+            if (player1.life == 0) {
+                player1.dead = true
+            }
+        }
+    })
+}
+
+function printLife(){
+    lifeP1.innerHTML = `Player 1 life ${player1.life}`
+    lifeP2.innerHTML = `Player 2 life ${player2.life}`
+}
+
+function endgame() {
+    if (player1.dead == true || player2.dead == true) {
+        clearInterval(interval)
+        setTimeout(() => {
+            location.reload()
+        }, 3000)
+
     }
 }
 
@@ -162,6 +171,8 @@ function updateCanvas() {
     drawGun1()
     drawGun2()
     inCollision()
+    printLife()
+    endgame()
 }
 
 document.onkeydown = e => {
@@ -179,7 +190,6 @@ document.onkeydown = e => {
             break
         case 83:
             generateGun1()
-            console.log('shooting 1')
             break
         case 74:
             if (player2.x <= (5 * canvas.width) / 9) player2.x = (5 * canvas.width) / 9
@@ -194,7 +204,6 @@ document.onkeydown = e => {
             break
         case 75:
             generateGun2()
-            console.log('shooting 2')
             break
         default:
             break
